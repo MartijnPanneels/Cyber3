@@ -3,7 +3,8 @@ param (
     [ValidateSet("start", "stop")]
     [string]$Action,
 
-    [string]$VMName
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [string[]]$VMNames
 )
 
 $VMs = @(
@@ -14,7 +15,8 @@ $VMs = @(
     "employee",
     "isprouter",
     "homerouter",
-    "remote-employee"
+    "remote-employee",
+    "red"
 )
 
 function Start-VM {
@@ -29,12 +31,14 @@ function Stop-VM {
     VBoxManage controlvm "$vm" poweroff
 }
 
-if ($VMName) {
-    if ($VMs -contains $VMName) {
-        if ($Action -eq "start") { Start-VM $VMName }
-        elseif ($Action -eq "stop") { Stop-VM $VMName }
-    } else {
-        Write-Host "Error: VM '$VMName' not found in list."
+if ($VMNames.Count -gt 0) {
+    foreach ($vm in $VMNames) {
+        if ($VMs -contains $vm) {
+            if ($Action -eq "start") { Start-VM $vm }
+            elseif ($Action -eq "stop") { Stop-VM $vm }
+        } else {
+            Write-Host "Error: VM '$vm' not found in list."
+        }
     }
 } else {
     foreach ($vm in $VMs) {
@@ -43,5 +47,5 @@ if ($VMName) {
     }
 }
 
-# .\vm-control.ps1 -Action start (-VMName _name_)
-# .\vm-control.ps1 -Action stop (-VMName _name_)
+# .\vm-control.ps1 -Action start vmname
+# .\vm-control.ps1 -Action stop vmname

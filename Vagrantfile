@@ -165,4 +165,17 @@ Vagrant.configure("2") do |config|
             systemctl restart NetworkManager
         SHELL
     end
-end
+
+    config.vm.define "red" do |host|
+        host.vm.box = "kalilinux/rolling"
+        host.vm.box_version = "2025.3.0"
+        host.vm.hostname = "red"
+        host.vm.network "private_network", ip: "192.168.62.43", netmask: "255.255.255.0", name: HOST_ONLY_NETWORK
+
+        host.vm.provider :virtualbox do |v|
+            v.name = "red"
+            v.cpus = "2"
+            v.memory = "2048" 
+        end
+    end
+    end 

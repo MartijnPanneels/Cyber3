@@ -171,6 +171,8 @@ Vagrant.configure("2") do |config|
         host.vm.box_version = "2025.3.0"
         host.vm.hostname = "red"
         host.vm.network "private_network", ip: "192.168.62.43", netmask: "255.255.255.0", name: HOST_ONLY_NETWORK
+        host.vm.network "private_network", ip: "172.30.0.122", netmask: "255.255.255.0", virtualbox__intnet: "employee-home-lan"
+
 
         host.vm.provider :virtualbox do |v|
             v.name = "red"

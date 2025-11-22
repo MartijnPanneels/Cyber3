@@ -78,4 +78,29 @@
 
 ### Part 1
 
+The red machine is configured using the vagrantfile.
 
+### Part 2
+
+**What did you have to configure on your red machine to have internet and to properly ping the web machine (is the ping working on IP only or also on hostname)?**
+
+I configured a virtualbox-NAT interface so the red machine has internet. To communicate to the fake internet I added the Host-only adapter. I did not add the internal adapter but I added a route on the red machine to communicate to the internal network. The route goes to the next hop (company router).
+
+**What is the default gateway of each machine? What is the DNS server of each machine? Which machines have a static IP and which use DHCP?**
+
+For the adresses of the machines -> [cheat-sheet.md](../../cheat-sheet.md)
+
+To get the info:
+
+`ìp a`, `ip r`, `cat /etc/resolv.conf`, `nmcli dev show | grep DNS`
+
+**What (static) routes should be configured and where, how do you make it persistent?**
+
+```bash
+┌──(vagrant㉿red)-[~]
+└─$ nmcli connection modify eth1 ipv4.addresses 192.168.62.43/24
+nmcli connection modify eth1 ipv4.gateway 192.168.62.253
+nmcli connection modify eth1 ipv4.routes "172.30.0.0/16 192.168.62.253"
+nmcli connection modify eth1 ipv4.method manual
+nmcli connection up eth1
+```

@@ -94,6 +94,10 @@ To get the info:
 
 `ìp a`, `ip r`, `cat /etc/resolv.conf`, `nmcli dev show | grep DNS`
 
+**If you visualise all machines for this course, how many actual networks are there?**
+
+4 networks
+
 **What (static) routes should be configured and where, how do you make it persistent?**
 
 ```bash
@@ -104,3 +108,7 @@ nmcli connection modify eth1 ipv4.routes "172.30.0.0/16 192.168.62.253"
 nmcli connection modify eth1 ipv4.method manual
 nmcli connection up eth1
 ```
+
+**Investigate whether the DNS server of the company network is vulnerable to a DNS zone transfer "attack" as discussed above. What exactly does this attack involve? If possible, try to change the configuration multiple times in such a way that you know and understand when the server will allow or prevent this "attack". Document this update: How can you execute this attack or check if the DNS server is vulnerable and how can you fix it? Can you perform this "attack" both on Windows and Linux? Document your findings properly**
+
+To find the zone. Go into the DNS (172.30.0.4) and `sudo cat /etc/bind/named.conf`. Here we can see that the zone is "cybersec.internal". Now we can test the remote zone transfer by using this command: `dig @172.30.0.4 cybersec.internal AXFR`. I get: "Connection to 172.30.0.4#53(172.30.0.4) for cybersec.internal failed: timed out."

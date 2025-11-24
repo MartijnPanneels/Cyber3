@@ -101,14 +101,36 @@ To get the info:
 **What (static) routes should be configured and where, how do you make it persistent?**
 
 ```bash
+sudo ip route add default via 192.168.62.253 dev eth1
+
 ┌──(vagrant㉿red)-[~]
-└─$ nmcli connection modify eth1 ipv4.addresses 192.168.62.43/24
-nmcli connection modify eth1 ipv4.gateway 192.168.62.253
-nmcli connection modify eth1 ipv4.routes "172.30.0.0/16 192.168.62.253"
-nmcli connection modify eth1 ipv4.method manual
-nmcli connection up eth1
+└─$ ip r
+default via 192.168.62.254 dev eth1
 ```
 
 **Investigate whether the DNS server of the company network is vulnerable to a DNS zone transfer "attack" as discussed above. What exactly does this attack involve? If possible, try to change the configuration multiple times in such a way that you know and understand when the server will allow or prevent this "attack". Document this update: How can you execute this attack or check if the DNS server is vulnerable and how can you fix it? Can you perform this "attack" both on Windows and Linux? Document your findings properly**
 
-To find the zone. Go into the DNS (172.30.0.4) and `sudo cat /etc/bind/named.conf`. Here we can see that the zone is "cybersec.internal". Now we can test the remote zone transfer by using this command: `dig @172.30.0.4 cybersec.internal AXFR`. I get: "Connection to 172.30.0.4#53(172.30.0.4) for cybersec.internal failed: timed out."
+A DNS zone transfer (AXFR) is designed to replicate DNS records from a primary DNS server to secondary DNS servers.
+
+To find the zone. Go into the DNS (172.30.0.4) and `sudo cat /etc/bind/named.conf`. Here we can see that the zone is "cybersec.internal". Now we can test the remote zone transfer by using this command: `dig @172.30.0.4 cybersec.internal AXFR`. I get the following output:
+
+```bash
+┌──(vagrant㉿red)-[~]
+└─$ dig @172.30.0.4 cybersec.internal AXFR
+
+; <<>> DiG 9.20.11-4+b1-Debian <<>> @172.30.0.4 cybersec.internal AXFR
+; (1 server found)
+;; global options: +cmd
+cybersec.internal.      86400   IN      SOA     dns.cybersec.internal. admin.cybersec.internal. 2023092301 3600 1800 1209600 86400
+cybersec.internal.      86400   IN      NS      dns.cybersec.internal.
+txt.at.cybersec.internal. 86400 IN      TXT     "Greetings from CSA team!"
+dns.cybersec.internal.  86400   IN      A       172.30.0.4
+www.cybersec.internal.  86400   IN      A       172.30.0.10
+cybersec.internal.      86400   IN      SOA     dns.cybersec.internal. admin.cybersec.internal. 2023092301 3600 1800 1209600 86400
+;; Query time: 4 msec
+;; SERVER: 172.30.0.4#53(172.30.0.4) (TCP)
+;; WHEN: Mon Nov 24 10:19:50 EST 2025
+;; XFR size: 6 records (messages 1, bytes 267)
+```
+
+Here I can see all the DNS information. In this scenario we can change in the file /etc/bind/named.conf allow-transfer to -> { none; }; (We don't have a secondary DNS server). If we had a DNS server, we would paste the IP-address of the secondary DNS in there.

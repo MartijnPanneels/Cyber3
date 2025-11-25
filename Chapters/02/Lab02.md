@@ -94,14 +94,27 @@ I will use nmap for this. `nmap -sV 172.30.0.10` --> Apache httpd 2.4.62 ((AlmaL
 
 The -sC option in nmap runs the default script scan. It executes Nmap's most common and useful scripts against the target.
 
-Important: after trying to figure this one out using nmap from the red machine. Shift your view from a red teamer to a blue teamer. Log in to the web machine and try to figure out, in detail (!), how the webserver is configured. What software is used? Is it static content? Is there java, c#, .NET, php, nodejs... ? Are systemd-unit files used as services? Document this properly!
+**Important: after trying to figure this one out using nmap from the red machine. Shift your view from a red teamer to a blue teamer. Log in to the web machine and try to figure out, in detail (!), how the webserver is configured. What software is used? Is it static content? Is there java, c#, .NET, php, nodejs... ? Are systemd-unit files used as services? Document this properly!**
 
-Network Segmentation¶
+- There is an Apache HTTPd on port 80 and a Java application on port 8000 (`ss -tulnp`)
+- Webserver: Apache HTTPD 2.4.62 (`cat /etc/httpd/conf/httpd.conf`)
+- ServerName: www.cybersec.inernal
+- In /var/www/html is the index.html
+- openjdk version "17.0.16" 2025-07-15 LTS
+- Python 3.9.21
 
-As you can see, a hacker on this host-only network, has no restrictions to interact with the other machines. This is not a best-practice! It looks like there is no difference between the attacker being inside "the internal network" or in the "fake internet network". In practice this means there is not a firewall configured to schield the internal network from the big bad world outside (in this case - once again to stress the important - the "fake internet" network). A way to resolve this issue, is by using and configuring a firewall. This is a network-based firewall. Host-based firewalling is also important, but they are 2 different things! When configuring a firewall, it is import to perform what is called network segmentation. By dividing the network in several segments (often also called "zones") and properly configuring the access to and from these segments (often subnets) you can reduce the attack vector a lot!
 
-    What is meant here with the term "attack vector"?
-    Is there already network segmentation done on the (internal) company network?
+
+## Network Segmentation¶
+
+**As you can see, a hacker on this host-only network, has no restrictions to interact with the other machines. This is not a best-practice! It looks like there is no difference between the attacker being inside "the internal network" or in the "fake internet network". In practice this means there is not a firewall configured to schield the internal network from the big bad world outside (in this case - once again to stress the important - the "fake internet" network). A way to resolve this issue, is by using and configuring a firewall. This is a network-based firewall. Host-based firewalling is also important, but they are 2 different things! When configuring a firewall, it is import to perform what is called network segmentation. By dividing the network in several segments (often also called "zones") and properly configuring the access to and from these segments (often subnets) you can reduce the attack vector a lot!**
+
+**What is meant here with the term "attack vector"?**
+
+An attack vector is a path or method by which an attacker can gain unauthorized access to a network, system, or data to deliver a malicious payload or carry out an attack.
+
+**Is there already network segmentation done on the (internal) company network?**
+
     Remember what a DMZ is? What machines would be in the DMZ in this environment? Are there multiple ways to configure this?
     What could be annoying when using network segmentation? Tip in our case: take a look at client <-> server interaction.
 

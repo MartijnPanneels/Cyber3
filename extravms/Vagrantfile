@@ -11,7 +11,7 @@ Vagrant.configure("2") do |config|
     host.vm.synced_folder ".", "C:/vagrant", type: "virtualbox"
     host.vm.provider "virtualbox" do |v|
       v.name = "winclient"
-      v.customize ["modifyvm", :id, "--groups", "/WS2"]
+      v.customize ["modifyvm", :id, "--groups", "/CSA"]
       v.memory = "2048"
       v.cpus = "2"
     end
@@ -24,6 +24,7 @@ Vagrant.configure("2") do |config|
         
         host.vm.provider :virtualbox do |v|
             v.name = "red"
+            v.customize ["modifyvm", :id, "--groups", "/CSA"]
             v.cpus = "4"
             v.memory = "6144" 
         end

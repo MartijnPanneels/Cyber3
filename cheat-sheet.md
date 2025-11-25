@@ -40,6 +40,8 @@
 
 ### DNS
 
+For red: check /etc/resolv.conf
+
 _nslookup works on Linux and Windows, host and dig only works on Linux_
 
 |                   Task                   |               Commands               |

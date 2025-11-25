@@ -78,7 +78,7 @@
 
 ### Part 1
 
-The red machine is configured using the vagrantfile.
+The red machine is configured using a vagrantfile.
 
 ### Part 2
 
@@ -134,3 +134,15 @@ cybersec.internal.      86400   IN      SOA     dns.cybersec.internal. admin.cyb
 ```
 
 Here I can see all the DNS information. In this scenario we can change in the file /etc/bind/named.conf. Under the zone cybersec.internal is chagend allow-transfer from { any;} to { none; }.
+
+After changing it and running the command again. I get this:
+
+```bash
+┌──(vagrant㉿red)-[~]
+└─$ dig @172.30.0.4 cybersec.internal AXFR
+
+; <<>> DiG 9.20.11-4+b1-Debian <<>> @172.30.0.4 cybersec.internal AXFR
+; (1 server found)
+;; global options: +cmd
+; Transfer failed.
+```

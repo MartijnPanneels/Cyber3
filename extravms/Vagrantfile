@@ -1,0 +1,32 @@
+HOST_ONLY_NETWORK = "VirtualBox Host-Only Ethernet Adapter #2" # Typically on Windows
+
+Vagrant.configure("2") do |config|
+  config.vm.define "winclient" do |host|
+    host.vm.box = "gusztavvargadr/windows-10-22h2-enterprise"
+    host.vm.box_version = "2506.0.0"
+    host.vm.network "private_network", ip: "192.168.62.44", netmask: "255.255.255.0", name: HOST_ONLY_NETWORK
+    host.vm.hostname = "winclient"
+    host.vm.boot_timeout = 600
+    host.vm.graceful_halt_timeout = 600
+    host.vm.synced_folder ".", "C:/vagrant", type: "virtualbox"
+    host.vm.provider "virtualbox" do |v|
+      v.name = "winclient"
+      v.customize ["modifyvm", :id, "--groups", "/WS2"]
+      v.memory = "2048"
+      v.cpus = "2"
+    end
+  end
+   config.vm.define "red" do |host|
+        host.vm.box = "kalilinux/rolling"
+        host.vm.box_version = "2025.3.0"
+        host.vm.hostname = "red"
+        host.vm.network "private_network", ip: "192.168.62.43", netmask: "255.255.255.0", name: HOST_ONLY_NETWORK
+        
+        host.vm.provider :virtualbox do |v|
+            v.name = "red"
+            v.cpus = "4"
+            v.memory = "6144" 
+        end
+    end
+end
+  

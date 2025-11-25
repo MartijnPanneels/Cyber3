@@ -133,4 +133,4 @@ cybersec.internal.      86400   IN      SOA     dns.cybersec.internal. admin.cyb
 ;; XFR size: 6 records (messages 1, bytes 267)
 ```
 
-Here I can see all the DNS information. In this scenario we can change in the file /etc/bind/named.conf allow-transfer to -> { none; }; (We don't have a secondary DNS server). If we had a DNS server, we would paste the IP-address of the secondary DNS in there.
+Here I can see all the DNS information. In this scenario we can change in the file /etc/bind/named.conf. Under the zone cybersec.internal is chagend allow-transfer from { any;} to { none; }.

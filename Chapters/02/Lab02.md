@@ -156,4 +156,5 @@ dns: `sudo vi /etc/network/interfaces` -> `sudo /etc/init.d/networking restart` 
 Change the DNS ip of the red machine: `sudo vi /etc/resolv.conf` -> `sudo chattr +i /etc/resolv.conf`
 
 5. After the network segmentation I need to set up the firewall. For this I used nftables.
-6. I can still surf to www.cybersec.internal, but i can't connect to the other internal services from the red machine.
+6. I can still surf to /www.cybersec.internal, but i can't connect to the other internal services from the red machine.
+7. If i do an nmap on the webserver. I can see that port 80 is open, but port 22 and 666 are filtered. This is because of the firewall-settings

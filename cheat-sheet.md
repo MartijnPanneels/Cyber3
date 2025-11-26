@@ -74,6 +74,8 @@ web: `sudo vi /etc/sysconfig/network-scripts/ifcfg-eth3` -> `sudo systemctl rest
 
 dns: `sudo vi /etc/network/interfaces` -> `sudo /etc/init.d/networking restart` -> change the dns of cyber.internal to the new ip (`/var/bind/cybersec.internal`), `sudo rc-service named restart`
 
+Change the DNS ip of the red machine: `sudo vi /etc/resolv.conf` -> `sudo chattr +i /etc/resolv.conf`
+
 ## Commands
 
 ### Package manager apk

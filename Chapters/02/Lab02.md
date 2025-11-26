@@ -96,14 +96,12 @@ The -sC option in nmap runs the default script scan. It executes Nmap's most com
 
 **Important: after trying to figure this one out using nmap from the red machine. Shift your view from a red teamer to a blue teamer. Log in to the web machine and try to figure out, in detail (!), how the webserver is configured. What software is used? Is it static content? Is there java, c#, .NET, php, nodejs... ? Are systemd-unit files used as services? Document this properly!**
 
-- There is an Apache HTTPd on port 80 and a Java application on port 8000 (`ss -tulnp`)
-- Webserver: Apache HTTPD 2.4.62 (`cat /etc/httpd/conf/httpd.conf`)
-- ServerName: www.cybersec.inernal
-- In /var/www/html is the index.html
-- openjdk version "17.0.16" 2025-07-15 LTS
-- Python 3.9.21
-
-
+-   There is an Apache HTTPd on port 80 and a Java application on port 8000 (`ss -tulnp`)
+-   Webserver: Apache HTTPD 2.4.62 (`cat /etc/httpd/conf/httpd.conf`)
+-   ServerName: www.cybersec.inernal
+-   In /var/www/html is the index.html
+-   openjdk version "17.0.16" 2025-07-15 LTS
+-   Python 3.9.21
 
 ## Network Segmentation¶
 
@@ -125,7 +123,6 @@ Configure the environment, and especially the companyrouter, to make sure that t
     You should verify what functionality you might lose by implementing the network segmentation. List out and create an overview.
     You should be able to revert back easily: Create proper documentation!
 
-
 Firewall¶
 
 You are free to choose how you will implement this, but be sure you are able to explain your reasoning. Document everything properly before making changes to existing configuration files. We suggest to use your knowledge of virtualbox as well. The goal of this exercise is to configure companyrouter as a firewall, more specifically a network-based firewall. Software that can help is for example firewall-cmd, ufw, iptables or nftables.
@@ -139,8 +136,23 @@ Open, closed, filtered ports¶
 
 Finish this lab exercise by performing a nmap scan to web on ports 80, 22 and 666. For port 80 you should see "open", what do you notice on port 22 and 666? Can you explain this result? Make your firewall insecure again (you should be able to do this easily!) and rerun the scan, analyse the differences. We expect you to learn and know the difference between open/closed/filtered!
 
-
 ### Documentation
 
 1. Add a network-adapter (DMZ) to the conmpany router. I did it using the virtualbox GUI
-2. 
+2. For network segmentation I've splitted the internal /16 network into a /17 internal network so it hase a range of 172.30.0.1 – 172.30.127.254. This wil function as the internal network for the database and hosts. The DMZ is a /28 network 172.30.128.1 – 172.30.128.14 for the DNS and the web.
+3. After the segmenation plan I changed the [Network Diagram](../img/image.png) so it is up to date.
+4. To change the routes on the vm's i used the following commands:
+
+database: `sudo vi /etc/network/interfaces` -> `sudo systemctl restart networking`
+
+employee: `sudo vi /etc/network/interfaces` -> `sudo /etc/init.d/networking restart`
+
+companyrouter: `sudo vi /etc/sysconfig/network-scripts/ifcfg-eth3` -> `sudo systemctl restart NetworkManager`
+
+web: `sudo vi /etc/sysconfig/network-scripts/ifcfg-eth3` -> `sudo systemctl restart NetworkManager`
+
+dns: `sudo vi /etc/network/interfaces` -> `sudo /etc/init.d/networking restart` -> change the dns of cyber.internal to the new ip (`/var/bind/cybersec.internal`), `sudo rc-service named restart`
+
+Change the DNS ip of the red machine: `sudo vi /etc/resolv.conf` -> `sudo chattr +i /etc/resolv.conf`
+
+5. After the network segmentation I need to set up the firewall. For this I

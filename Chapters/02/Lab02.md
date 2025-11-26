@@ -155,4 +155,5 @@ dns: `sudo vi /etc/network/interfaces` -> `sudo /etc/init.d/networking restart` 
 
 Change the DNS ip of the red machine: `sudo vi /etc/resolv.conf` -> `sudo chattr +i /etc/resolv.conf`
 
-5. After the network segmentation I need to set up the firewall. For this I
+5. After the network segmentation I need to set up the firewall. For this I used nftables.
+6. I can still surf to www.cybersec.internal, but i can't connect to the other internal services from the red machine.

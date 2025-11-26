@@ -51,5 +51,5 @@ if ($VMNames.Count -gt 0) {
 # .\vm-control.ps1 -Action start vmname
 # .\vm-control.ps1 -Action stop vmname
 
-# .\vm-control.ps1 -Action start isprouter companyrouter dns employee red web homerouter remote-employee database winclient
-# .\vm-control.ps1 -Action stop isprouter companyrouter dns employee red web homerouter remote-employee database winclient
+# .\vm-control.ps1 -Action start isprouter companyrouter dns employee red web database homerouter remote-employee  winclient
+# .\vm-control.ps1 -Action stop isprouter companyrouter dns employee red web database homerouter remote-employee  winclient

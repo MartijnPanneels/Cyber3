@@ -125,6 +125,7 @@ Configure the environment, and especially the companyrouter, to make sure that t
     You should verify what functionality you might lose by implementing the network segmentation. List out and create an overview.
     You should be able to revert back easily: Create proper documentation!
 
+
 Firewall¶
 
 You are free to choose how you will implement this, but be sure you are able to explain your reasoning. Document everything properly before making changes to existing configuration files. We suggest to use your knowledge of virtualbox as well. The goal of this exercise is to configure companyrouter as a firewall, more specifically a network-based firewall. Software that can help is for example firewall-cmd, ufw, iptables or nftables.
@@ -137,3 +138,9 @@ Conclusion: although we think there is value in the ability of reading and inter
 Open, closed, filtered ports¶
 
 Finish this lab exercise by performing a nmap scan to web on ports 80, 22 and 666. For port 80 you should see "open", what do you notice on port 22 and 666? Can you explain this result? Make your firewall insecure again (you should be able to do this easily!) and rerun the scan, analyse the differences. We expect you to learn and know the difference between open/closed/filtered!
+
+
+### Documentation
+
+1. Add a network-adapter (DMZ) to the conmpany router. I did it using the virtualbox GUI
+2. 

@@ -1,6 +1,14 @@
 # Cheat sheet
 
-## Addresstable voor segmentatie
+## Network overview
+
+Internal Network:
+172.30.0.0/17 -> 172.30.0.1 – 172.30.127.254
+
+DMZ:
+172.30.128.0/28 -> 172.30.128.1 – 172.30.128.14
+
+## Addresstable before segmentation
 
 |     Machine     |        IP         | Default Gateway |   DNS server   |
 | :-------------: | :---------------: | :-------------: | :------------: |
@@ -26,7 +34,7 @@
 |                 | 172.10.10.254/24  |                 |                |
 | remote-employee | 172.10.10.123/24  |  172.10.10.254  | 192.168.62.254 |
 
-## Addresstable na segmentatie
+## Addresstable after segmentation
 
 |     Machine     |        IP         | Default Gateway |   DNS server   |
 | :-------------: | :---------------: | :-------------: | :------------: |
@@ -53,6 +61,18 @@
 |   homerouter    | 192.168.62.42/24  | 192.168.62.254  | 192.168.62.254 |
 |                 | 172.10.10.254/24  |                 |                |
 | remote-employee | 172.10.10.123/24  |  172.10.10.254  | 192.168.62.254 |
+
+## Change routes
+
+database: `sudo vi /etc/network/interfaces` -> `sudo systemctl restart networking`
+
+employee: `sudo vi /etc/network/interfaces` -> `sudo /etc/init.d/networking restart`
+
+companyrouter: `sudo vi /etc/sysconfig/network-scripts/ifcfg-eth3` -> `sudo systemctl restart NetworkManager`
+
+web: `sudo vi /etc/sysconfig/network-scripts/ifcfg-eth3` -> `sudo systemctl restart NetworkManager`
+
+dns: `sudo vi /etc/network/interfaces` -> `sudo /etc/init.d/networking restart` -> change the dns of cyber.internal to the new ip (`/var/bind/cybersec.internal`), `sudo rc-service named restart`
 
 ## Commands
 

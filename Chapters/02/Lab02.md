@@ -123,7 +123,7 @@ Configure the environment, and especially the companyrouter, to make sure that t
     You should verify what functionality you might lose by implementing the network segmentation. List out and create an overview.
     You should be able to revert back easily: Create proper documentation!
 
-Firewall¶
+Firewall
 
 You are free to choose how you will implement this, but be sure you are able to explain your reasoning. Document everything properly before making changes to existing configuration files. We suggest to use your knowledge of virtualbox as well. The goal of this exercise is to configure companyrouter as a firewall, more specifically a network-based firewall. Software that can help is for example firewall-cmd, ufw, iptables or nftables.
 
@@ -158,9 +158,9 @@ Change the DNS ip of the red machine: `sudo vi /etc/resolv.conf` -> `sudo chattr
 5. After the network segmentation I need to set up the firewall. For this I used nftables.
 
 -   Installing nftables and check if running `systemctl status nftables`
--   I created a file: vi firewall.nft
+-   I created a file: `vi firewall.nft`
 -   I activated it using `sudo nft -f firewall.nft`
 -   To check if it worked i used `sudo nft list ruleset`
 
 1. I can still surf to /www.cybersec.internal, but i can't connect to the other internal services from the red machine.
-2. If i do an nmap on the webserver. I can see that port 80 is open, but port 22 and 666 are filtered. This is because of the firewall-settings
+2. If i do an nmap on the webserver. I can see that port 80 is open, but port 22 and 666 are filtered. This is because of the firewall-settings.

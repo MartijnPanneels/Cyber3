@@ -118,15 +118,33 @@ TcpTestSucceeded : True
 
 **Why is this an interesting approach from a security point-of-view?**
 
--   Bypass firewall rules that block direct access
--   Hard to detect: uses legitimate SSH
--   **When would you use local port forwarding?**
+    - Bypass firewall rules that block direct access.
+    - Hard to detect: uses legitimate SSH.
 
-    **When would you use remote port forwarding?**
+**When would you use local port forwarding?**
 
-    **Which of the two are more "common" in security?**
+    - Use local port forwarding (-L) when you need to access a service on a remote/internal network from your local machine, as if it were running on localhost (Private use).
+    - ssh -L 13306:database:3306 companyrouter
 
-    **Some people call SSH port forwarding also a "poor man's VPN". Why?**
+**When would you use remote port forwarding?**
+
+    - Use remote port forwarding (-R) when you want a port to listen on the remote side (bastion/server) and forward back to a target service that your local machine can reach (Public use).
+    - ssh -R 192.168.62.253:3306:172.30.0.15:3306 companyrouter
+      - -R: create a listener on the remote (companyrouter)
+      - 192.168.62.253:3306: port that will listen on companyrouter
+      - 172.30.0.15:3306: ultimate destination (database) that your local side can reach via the SSH tunnel
+      - Anyone who can reach companyrouter:3306 can now reach the database through your tunnel (if GatewayPorts yes).
+
+**Which of the two are more "common" in security?**
+
+Local port forwarding is the more common pattern in security work. Pivoting into internal services during pentests/red teaming.
+Remote port forwarding shows up less often, mainly for callbacks/reverse shells from firewalled hosts
+
+**Some people call SSH port forwarding also a "poor man's VPN". Why?**
+
+Because a single SSH session can create encrypted, on-demand tunnels to reach otherwise internal services, so you get VPN-like access without installing a full VPN stack.
+
+---
 
 Create another user for every machine:
 
@@ -155,3 +173,26 @@ Create another user for every machine:
 |    isprouter    | isprouteradmin  |
 |   homerouter    | homerouteradmin |
 | remote-employee |   remoteuser    |
+
+---
+
+**Example 1: use port forwarding to get to see the webpage from the webserver in the browser on the host (your laptop).**
+
+1. Open a ssh-tunnel: `ssh -L 8080:172.30.128.10:80 companyrouter`
+2. Leave the session open.
+3. Surf to `http://localhost:8080/`
+
+**Example 2: use port forwarding to access the database from the host (your laptop).**
+
+1. Open a ssh-tunnel: `ssh -L 13306:172.30.0.15:3306 companyrouter`
+2. Leave the session open.
+3. It is accessible on `localhost:13306`
+
+**Example 3: combine both examples in a single command so you can see the webpage and access the database both at the same time from the host (your laptop).**
+
+1. Open a ssh-tunnel: `ssh -L 8080:172.30.128.10:80 -L 13306:172.30.0.15:3306 companyrouter`
+2. Both are now accessible
+
+**Example 4: try to log in on web from the host (your laptop) if you didn't add routes on your host.**
+
+ssh -J companyrouter vagrant@172.30.128.10

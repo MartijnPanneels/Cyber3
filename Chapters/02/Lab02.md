@@ -103,7 +103,7 @@ The -sC option in nmap runs the default script scan. It executes Nmap's most com
 -   openjdk version "17.0.16" 2025-07-15 LTS
 -   Python 3.9.21
 
-## Network Segmentation¶
+## Network Segmentation
 
 **As you can see, a hacker on this host-only network, has no restrictions to interact with the other machines. This is not a best-practice! It looks like there is no difference between the attacker being inside "the internal network" or in the "fake internet network". In practice this means there is not a firewall configured to schield the internal network from the big bad world outside (in this case - once again to stress the important - the "fake internet" network). A way to resolve this issue, is by using and configuring a firewall. This is a network-based firewall. Host-based firewalling is also important, but they are 2 different things! When configuring a firewall, it is import to perform what is called network segmentation. By dividing the network in several segments (often also called "zones") and properly configuring the access to and from these segments (often subnets) you can reduce the attack vector a lot!**
 
@@ -149,7 +149,7 @@ employee: `sudo vi /etc/network/interfaces` -> `sudo /etc/init.d/networking rest
 
 companyrouter: `sudo vi /etc/sysconfig/network-scripts/ifcfg-eth3` -> `sudo systemctl restart NetworkManager`
 
-web: `sudo vi /etc/sysconfig/network-scripts/ifcfg-eth3` -> `sudo systemctl restart NetworkManager`
+web: `sudo vi /etc/sysconfig/network-scripts/ifcfg-eth1` -> `sudo systemctl restart NetworkManager`
 
 dns: `sudo vi /etc/network/interfaces` -> `sudo /etc/init.d/networking restart` -> change the dns of cyber.internal to the new ip (`/var/bind/cybersec.internal`), `sudo rc-service named restart`
 

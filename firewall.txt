@@ -8,7 +8,7 @@ table inet filter {
         ct state established,related accept  # Allow ongoing connections
         iif lo accept  # Allow loopback traffic
 
-        ip daddr 192.168.62.253 tcp dport 22 accept 
+        tcp dport {22,2222} accept 
     }
 
     chain forward {
@@ -20,12 +20,14 @@ table inet filter {
         ip saddr 172.30.0.0/17 accept  # Allow internal net outbound
         ip saddr 172.30.128.10 ip daddr 172.30.0.15 tcp dport 3306 accept  # DMZ → internal DB
 
+        ip saddr 192.168.62.253 tcp dport 22 accept
+        
         # Allow ALL networks → DMZ web server
         ip daddr 172.30.128.10 tcp dport 80 accept  # Web access to DMZ
         ip daddr 172.30.128.7 tcp dport 53 accept   # DNS TCP to DMZ
         ip daddr 172.30.128.7 udp dport 53 accept   # DNS UDP to DMZ
 
-        ip saddr 192.168.62.253 tcp dport 22 accept
+
 }
 
     chain output {

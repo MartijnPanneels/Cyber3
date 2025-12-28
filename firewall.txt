@@ -18,6 +18,7 @@ table inet filter {
 
         # Internal → anywhere (internet & DMZ)
         ip saddr 172.30.0.0/17 accept  # Allow internal net outbound
+        ip saddr 172.30.128.0/28 accept  # Allow DMZ net outbound
         ip saddr 172.30.128.10 ip daddr 172.30.0.15 tcp dport 3306 accept  # DMZ → internal DB
 
         ip saddr 192.168.62.253 tcp dport 22 accept

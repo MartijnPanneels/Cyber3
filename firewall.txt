@@ -16,22 +16,31 @@ table inet filter {
 
         ct state established,related accept  # Allow ongoing connections
 
-        # Internal → anywhere (internet & DMZ)
-        ip saddr 172.30.0.0/17 accept  # Allow internal net outbound
+        # Internal network → DMZ DNS for internet queries
+        ip saddr 172.30.0.0/17 accept  
         ip saddr 172.30.128.0/28 accept  # Allow DMZ net outbound
         ip saddr 172.30.128.10 ip daddr 172.30.0.15 tcp dport 3306 accept  # DMZ → internal DB
 
         ip saddr 192.168.62.253 tcp dport 22 accept
+        ip saddr 192.168.62.43 ip daddr 172.30.128.0/28 accept
         
         # Allow ALL networks → DMZ web server
         ip daddr 172.30.128.10 tcp dport {80,443} accept  # Web access to DMZ
-        ip daddr 172.30.128.7 tcp dport 53 accept   # DNS TCP to DMZ
-        ip daddr 172.30.128.7 udp dport 53 accept   # DNS UDP to DMZ
-
-
+        ip daddr 172.30.128.7 tcp dport 53 accept   
+        ip daddr 172.30.128.7 udp dport 53 accept   
+        ip saddr 172.30.128.7 tcp dport 53 accept  
+        ip saddr 172.30.128.7 udp dport 53 accept  
 }
 
     chain output {
         type filter hook output priority 0; policy accept;  # Allow all outgoing
     }
+}
+
+table ip nat {
+  chain postrouting {
+    type nat hook postrouting priority 100;
+    ip saddr 172.30.0.0/17 ip daddr 192.168.62.0/24 masquerade
+    ip saddr 172.30.128.0/28 ip daddr 192.168.62.0/24 masquerade
+  }
 }

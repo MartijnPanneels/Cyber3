@@ -22,6 +22,7 @@
     -   default via 192.168.62.254 dev eth2 proto static metric 101
     -   default via 192.168.62.254 dev eth3 proto static metric 102
 -   Routes:
+    -   172.10.10.0/24 via 192.168.62.42 dev eth1
     -   172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1
     -   172.30.0.0/17 dev eth2 proto static scope link metric 103
     -   172.30.128.0/28 dev eth3 proto kernel scope link src 172.30.128.14 metric 102
@@ -46,7 +47,7 @@
     -   default via 10.0.2.2 dev eth0 metric 202
 -   Routes:
     -   172.10.10.0/24 via 192.168.62.42 dev eth1
-    -   172.30.0.0/16 via 192.168.62.253 dev eth1
+    -   172.30.0.0/17 via 192.168.62.253 dev eth1
     -   192.168.62.0/24 dev eth1 scope link src 192.168.62.254
 -   DNS:
     -   nameserver 10.0.2.2
@@ -64,6 +65,8 @@
     -   default via 192.168.62.254 dev eth1 proto static metric 100
 -   Routes:
     -   172.10.10.0/24 dev eth2 proto kernel scope link src 172.10.10.254 metric 101
+    -   172.30.0.0/17 via 192.168.62.253 dev eth1
+    -   172.30.128.0/28 via 192.168.62.253 dev eth1
     -   192.168.62.0/24 dev eth1 proto kernel scope link src 192.168.62.42 metric 100
 -   DNS:
     -   nameserver 192.168.62.254
@@ -83,6 +86,7 @@
 -   Routes:
     -   10.0.2.0/24 dev eth0 proto kernel scope link src 10.0.2.15
     -   10.0.2.2 dev eth0 proto dhcp scope link src 10.0.2.15 metric 1024
+    -   172.30.128.0/28 via 192.168.62.253 dev eth1
     -   192.168.25.10 via 10.0.2.2 dev eth0 proto dhcp src 10.0.2.15 metric 1024
     -   192.168.62.0/24 dev eth1 proto kernel scope link src 192.168.62.43
 -   DNS:
@@ -157,14 +161,6 @@
     -   172.30.0.0/17 dev eth1 proto kernel scope link src 172.30.0.6 metric 100
 -   DNS:
     -   nameserver 172.30.128.7
-
-### Winclient
-
--   OS:
--   Network:
--   IP's:
--   Default Gateway:
--   DNS:
 
 ### Remote-employee
 

@@ -16,12 +16,14 @@ table inet filter {
 
         ct state established,related accept  # Allow ongoing connections
 
-        # Internal network → DMZ DNS for internet queries
+        # Internal network → anywhere
         ip saddr 172.30.0.0/17 accept  
-        ip saddr 172.30.128.0/28 accept  # Allow DMZ net outbound
-        ip saddr 172.30.128.10 ip daddr 172.30.0.15 tcp dport 3306 accept  # DMZ → internal DB
-
-        ip saddr 192.168.62.253 tcp dport 22 accept
+        # Home network (remote_employee) → anywhere (internet, internal, DMZ)
+        ip saddr 172.10.10.0/24 accept
+        
+        # DMZ web server → internal DB
+        ip saddr 172.30.128.10 ip daddr 172.30.0.15 tcp dport 3306 accept
+        # Red → DMZ
         ip saddr 192.168.62.43 ip daddr 172.30.128.0/28 accept
         
         # Allow ALL networks → DMZ web server
@@ -40,7 +42,15 @@ table inet filter {
 table ip nat {
   chain postrouting {
     type nat hook postrouting priority 100;
-    ip saddr 172.30.0.0/17 ip daddr 192.168.62.0/24 masquerade
-    ip saddr 172.30.128.0/28 ip daddr 192.168.62.0/24 masquerade
+    ip saddr 172.30.0.0/17 masquerade
+    ip saddr 172.30.128.0/28 masquerade
+    ip saddr 172.10.10.0/24 masquerade
   }
 }
+
+
+# Commands
+- sudo nft flush ruleset
+- sudo vi /etc/sysconfig/nftables.conf
+- sudo nft -f /etc/sysconfig/nftables.conf
+- sudo nft list ruleset

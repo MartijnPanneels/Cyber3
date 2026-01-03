@@ -133,3 +133,33 @@ ip xfrm state add src 192.168.62.253 dst 192.168.62.42 proto esp spi ${SPI8} mod
 ip xfrm policy add src 172.30.0.0/16 dst 172.10.10.0/24 dir fwd tmpl src 192.168.62.253 dst 192.168.62.42 proto esp spi ${SPI8} mode tunnel
 ip xfrm policy list
 ```
+
+You can use `sudo ip xfrm policy list` to verify the tunnel.
+
+Now I have set up 2 tunnels (in both directions). I can test it by pinging the dns from the remote-employee. Capture the traffic using the MitM attack.
+
+![ESP-Packets](img/ESP-Packets.png)
+
+### Decrypt
+
+Run `sudo ip xfrm state` on the routers
+
+Open your capture in Wireshark.
+
+Go to Edit → Preferences → Protocols → ESP.
+
+Click “Edit” next to “ESP SAs (Security Associations)”.
+
+Add a new entry with:
+
+-   SPI 0x00000007 and 0x00000008
+-   IP addresses 192.168.62.253/192.168.62.42
+-   Encryption algorithm cbc(aes)
+-   Encryption key 0xfedcba9876543210fedcba9876543210
+
+Click OK and apply.
+
+I can't find a way to decrypt the packets...
+
+![ESP-decryption](img/ESP-decryption.png)
+

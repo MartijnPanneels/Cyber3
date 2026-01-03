@@ -25,6 +25,9 @@ table inet filter {
         ip saddr 192.168.62.43 ip daddr 172.30.128.0/28 accept
 
         # Internal network ↔ home
+        ip saddr 172.10.10.0/24 ip daddr 192.168.62.0/24 accept
+        ip saddr 192.168.62.0/24 ip daddr 172.10.10.0/24 accept
+
         ip saddr 172.30.0.0/17 ip daddr 172.10.10.0/24 accept
         ip saddr 172.10.10.0/24 ip daddr 172.30.0.0/17 accept
 

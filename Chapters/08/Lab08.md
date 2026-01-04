@@ -105,7 +105,7 @@ EOF
 
 # Security Association variables (DIFFERENT SPI for reverse direction)
 SPI8=0x008
-ENCKEY8=0xFEDCBA9876543210FEDCBA9876543210
+ENCKEY8=0xE3F1A2B4C5D6E7F8091A2B3C4D5E6F708192A3B4C5D6E7F8
 
 # Define the SA (Security Association) for encryption
 ip xfrm state add src 192.168.62.253 dst 192.168.62.42 proto esp spi ${SPI8} mode tunnel enc aes ${ENCKEY8}
@@ -124,7 +124,7 @@ ip xfrm policy list
 
 # Security Association variables (MUST MATCH companyrouter)
 SPI8=0x008
-ENCKEY8=0xFEDCBA9876543210FEDCBA9876543210
+ENCKEY8=0xE3F1A2B4C5D6E7F8091A2B3C4D5E6F708192A3B4C5D6E7F8
 
 # Define the SA (Security Association) for decryption
 ip xfrm state add src 192.168.62.253 dst 192.168.62.42 proto esp spi ${SPI8} mode tunnel enc aes ${ENCKEY8}
@@ -155,11 +155,9 @@ Add a new entry with:
 -   SPI 0x00000007 and 0x00000008
 -   IP addresses 192.168.62.253/192.168.62.42
 -   Encryption algorithm cbc(aes)
--   Encryption key 0xfedcba9876543210fedcba9876543210
+-   Encryption key 0xfedcba9876543210fedcba9876543210/0xE3F1A2B4C5D6E7F8091A2B3C4D5E6F708192A3B4C5D6E7F8
 
 Click OK and apply.
 
-I can't find a way to decrypt the packets...
-
-![ESP-decryption](img/ESP-decryption.png)
+![ESP-packets_decrypted](img/ESP-packets_decrypted.png)
 

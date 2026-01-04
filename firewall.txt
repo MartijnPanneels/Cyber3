@@ -7,7 +7,7 @@ table inet filter {
 
         ct state established,related accept  # Allow ongoing connections
         iif lo accept  # Allow loopback traffic
-
+        ip protocol icmp accept
         tcp dport {22,2222} accept
         
         # Allow ESP (IPsec) packets for tunnel decryption
@@ -20,6 +20,13 @@ table inet filter {
 
         # Always allow established/related connections first
         ct state established,related accept
+
+        # DNS forwarding
+        ip saddr 172.30.128.7 ip daddr 192.168.62.254 udp dport 53 accept
+        ip saddr 172.30.128.7 ip daddr 192.168.62.254 tcp dport 53 accept
+        ip saddr 192.168.62.254 ip daddr 172.30.128.7 udp sport 53 accept
+        ip saddr 192.168.62.254 ip daddr 172.30.128.7 tcp sport 53 accept
+
 
         # Red → DMZ
         ip saddr 192.168.62.43 ip daddr 172.30.128.0/28 accept

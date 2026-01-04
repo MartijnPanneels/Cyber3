@@ -18,17 +18,16 @@
     -   eth2: 172.30.127.254/17
     -   eth3: 172.30.128.14/28
 -   Default Gateway:
+
     -   default via 192.168.62.254 dev eth1 proto static metric 100
-    -   default via 192.168.62.254 dev eth2 proto static metric 101
-    -   default via 192.168.62.254 dev eth3 proto static metric 102
+
 -   Routes:
-    -   172.10.10.0/24 via 192.168.62.42 dev eth1
+    -   172.10.10.0/24 via 192.168.62.42 dev eth1 proto static metric 100
     -   172.17.0.0/16 dev docker0 proto kernel scope link src 172.17.0.1
-    -   172.30.0.0/17 dev eth2 proto static scope link metric 103
+    -   172.30.0.0/17 dev eth2 proto static scope link metric 101
+    -   172.30.0.0/17 dev eth2 proto kernel scope link src 172.30.127.254 metric 101
     -   172.30.128.0/28 dev eth3 proto kernel scope link src 172.30.128.14 metric 102
     -   192.168.62.0/24 dev eth1 proto kernel scope link src 192.168.62.253 metric 100
-    -   192.168.62.254 dev eth3 proto static scope link metric 102
-    -   192.168.62.254 dev eth2 proto static scope link metric 103
 -   DNS:
     -   nameserver 172.30.128.7
     -   nameserver 192.168.62.254

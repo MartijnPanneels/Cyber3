@@ -1,4 +1,5 @@
 #!/usr/sbin/nft -f
+#!/usr/sbin/nft -f
 
 flush ruleset
 

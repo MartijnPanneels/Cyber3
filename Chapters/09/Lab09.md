@@ -48,7 +48,10 @@ Copy paste the client.req on the server and sign it:
 -   `cd ~/openvpn`
 -   `sudo vi client.req` (paste it here)
 -   `sudo ./easyrsa sign-req client client`
-<!-- -   Paste the signed certificate back on the client Start with this -->
+-   Paste the signed certificate on the client. Location: "/home/vagrant/openvpn/pki/issued/client.crt"
+-   Paste the ca.crt on the client. Location: "/home/vagrant//openvpn/pki/ca.crt"
+
+Verify the connection: `sudo openssl verify -CAfile /home/vagrant/openvpn/pki/ca.crt  /home/vagrant/openvpn/pki/issued/client.crt` -> output: /home/vagrant/openvpn/pki/issued/client.crt: OK
 
 ### Q's
 
@@ -57,8 +60,31 @@ Copy paste the client.req on the server and sign it:
 
 ## Configure the server
 
-The configuration files are in: "/usr/share/doc/openvpn/sample/sample-config-files/"
+The configuration files are in: "/usr/share/doc/openvpn/sample/sample-config-files/" Make a copy
 
-`sudo vi /usr/share/doc/openvpn/sample/sample-config-files/server.conf`
+`cp /usr/share/doc/openvpn/sample/sample-config-files/server.conf ~/openvpn/server.conf`
 
-<!-- setup client remote employee as client -->
+-   Server ip
+-   Location of the ca, cert, key and Deffie-hellman parameters
+-   Set tls config in comments (#)
+
+## Configure the client
+
+Copy the config file so we can make changes for the client.
+
+`cp /usr/share/doc/openvpn/sample/sample-config-files/client.conf ~/openvpn/client.conf`
+
+Make the changes:
+
+-   Add the server ip
+-   Add the location of the ca, cert, key.
+-   Set tls config in comments (#)
+
+## Test the VPN
+
+1. Ping from remote-employee to web.
+2. Intercept the pings on red ``
+
+On the server: `sudo openvpn server.conf`
+
+On the client: `sudo openvpn client.conf`

@@ -9,7 +9,8 @@ table inet filter {
         iif lo accept  # Allow loopback traffic
         ip protocol icmp accept
         tcp dport {22,2222} accept
-        
+        udp dport 1194 accept
+
         # Allow ESP (IPsec) packets for tunnel decryption
         ip saddr 192.168.62.42 ip daddr 192.168.62.253 ip protocol esp accept
         ip saddr 192.168.62.253 ip daddr 192.168.62.42 ip protocol esp accept

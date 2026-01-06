@@ -8,7 +8,7 @@ table inet filter {
         ct state established,related accept  # Allow ongoing connections
         iif lo accept  # Allow loopback traffic
         ip protocol icmp accept
-        tcp dport {22,2222} accept
+        tcp dport {22,2222,80,443} accept
         udp dport 1194 accept
 
         # Allow ESP (IPsec) packets for tunnel decryption
@@ -29,7 +29,8 @@ table inet filter {
         ip saddr 192.168.62.254 ip daddr 172.30.128.7 tcp sport 53 accept
 
 
-        # Red → DMZ
+        # Red
+
         ip saddr 192.168.62.43 ip daddr 172.30.128.0/28 accept
 
         ip saddr 172.30.0.0/17 ip daddr 172.10.10.0/24 accept
@@ -38,6 +39,9 @@ table inet filter {
         # Internal network ↔ DMZ
         ip saddr 172.30.0.0/17 ip daddr 172.30.128.0/28 accept
         ip saddr 172.30.128.0/28 ip daddr 172.30.0.0/17 accept
+
+        ip saddr 172.30.0.0/17 ip daddr 192.168.62.0/24 accept
+        ip saddr 192.168.62.0/24 ip daddr 172.30.0.0/17 accept
 
         # DMZ web server → internal DB
         ip saddr 172.30.128.10 ip daddr 172.30.0.15 tcp dport 3306 accept
@@ -55,6 +59,13 @@ table inet filter {
     }
     chain output {
         type filter hook output priority 0; policy accept;  # Allow all outgoing
+    }
+}
+
+table ip nat {
+    chain POSTROUTING {
+        type nat hook postrouting priority 100; policy accept;
+        oifname "eth1" masquerade
     }
 }
 

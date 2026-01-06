@@ -68,6 +68,8 @@ The configuration files are in: "/usr/share/doc/openvpn/sample/sample-config-fil
 -   Location of the ca, cert, key and Deffie-hellman parameters
 -   Set tls config in comments (#)
 
+The configuration will look like: [server.conf](./openvpn-config/server.conf)
+
 ## Configure the client
 
 Copy the config file so we can make changes for the client.
@@ -80,11 +82,17 @@ Make the changes:
 -   Add the location of the ca, cert, key.
 -   Set tls config in comments (#)
 
+The configuration will look like: [client.conf](./openvpn-config/client.conf)
+
 ## Test the VPN
 
 1. Ping from remote-employee to web.
-2. Intercept the pings on red ``
+2. Intercept the pings on red `sudo ettercap -Tq -i eth1 -M arp:remote /192.168.62.42// /192.168.62.253//` and open wireshark on eth1.
 
 On the server: `sudo openvpn server.conf`
 
 On the client: `sudo openvpn client.conf`
+
+We can see that the traffic goes into the vpn.
+
+![openvpn-wireshark](img/openvpn-wireshark.png)

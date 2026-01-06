@@ -8,7 +8,9 @@ table inet filter {
         ct state established,related accept  # Allow ongoing connections
         iif lo accept  # Allow loopback traffic
         ip protocol icmp accept
-        tcp dport {22,2222,80,443} accept
+        tcp dport {22,2222, 80, 443} accept
+        tcp dport {80,443,1514,1515,55000,5601,9200} accept
+        udp dport 1514 accept
         udp dport 1194 accept
 
         # Allow ESP (IPsec) packets for tunnel decryption
@@ -22,15 +24,22 @@ table inet filter {
         # Always allow established/related connections first
         ct state established,related accept
 
+        ip daddr 172.30.0.6 tcp dport { 80, 443 } accept
+
         # DNS forwarding
         ip saddr 172.30.128.7 ip daddr 192.168.62.254 udp dport 53 accept
         ip saddr 172.30.128.7 ip daddr 192.168.62.254 tcp dport 53 accept
         ip saddr 192.168.62.254 ip daddr 172.30.128.7 udp sport 53 accept
         ip saddr 192.168.62.254 ip daddr 172.30.128.7 tcp sport 53 accept
 
+        # Allow ALL networks → Wazuh dashboard (HTTP/HTTPS)
+        ip daddr 172.30.0.6 tcp dport {80,443} accept
+
+        # Allow ALL networks → Wazuh dashboard (Wazuh agent and dashboard ports)
+        ip daddr 172.30.0.6 udp dport 1514 accept
+        ip daddr 172.30.0.6 tcp dport {1514,1515,55000,5601,9200} accept
 
         # Red
-
         ip saddr 192.168.62.43 ip daddr 172.30.128.0/28 accept
 
         ip saddr 172.30.0.0/17 ip daddr 172.10.10.0/24 accept
@@ -52,6 +61,7 @@ table inet filter {
 
         # Allow ALL networks → DMZ web server
         ip daddr 172.30.128.10 tcp dport {80,443} accept
+        # Allow ALL networks → Wazuh dashboard
         ip daddr 172.30.128.7 tcp dport 53 accept
         ip daddr 172.30.128.7 udp dport 53 accept
         ip saddr 172.30.128.7 tcp dport 53 accept

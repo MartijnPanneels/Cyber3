@@ -91,6 +91,47 @@ version: 7.10.2
 
 This output suggest that the server is installed correctly!
 
+The wazuh dashboard
+
+`sudo systemctl restart wazuh-dashboard`
+
+`sudo journalctl -u wazuh-dashboard -f`
+
 ## Wazuh agent
 
-Use windows 10 agent
+For the windows wazuh client I used the winclient (windows 10), followed the official documentation.
+
+For the Almalinux client I used the companyrouter, followed the official documentation.
+
+First I added the agents `sudo /var/ossec/bin/manage_agents`.
+
+I restarted the agents and the dashboard. Now i see ![never-connected](img/never-connected.png)
+
+Key for companyrouter: MDAxIENvbXBhbnlyb3V0ZXIgMTcyLjMwLjEyNy4yNTQgNzNlZTUyM2EzYzhjZmM1ZTExODk1NjUxNjEwM2NkZWNlYzUxMmY2MDU1OTY5N2YzNmE3NWM5MjQzOTFjYzQxNw==
+Key for winclient: MDAyIHdpbmNsaWVudCAxNzIuMzAuMC4yMCAwMzEyODYyMjQxMGEyYjNiODEyMTBjNWE2ZjBjNjlkOTA3NzIzZTkxNGQwNGYxNTJjYWY2ZTM5NzA4ODg1ZjBh
+
+Now import the key on the agent:
+
+For companyrouter: `sudo /var/ossec/bin/manage_agents` -> Press Import -> Paste the key -> restart the agent `sudo systemctl restart wazuh-agent`
+
+For the winclient: `& 'C:\Program Files (x86)\ossec-agent\manage_agents.exe'` -> press Import -> paste the key -> restart the service `Restart-Service WazuhSvc`
+
+Add firewallrules to the siem:
+
+```
+sudo firewall-cmd --permanent --add-port=1514/tcp
+sudo firewall-cmd --permanent --add-port=1514/udp
+sudo firewall-cmd --permanent --add-port=1515/tcp
+sudo firewall-cmd --permanent --add-port=55000/tcp
+sudo firewall-cmd --permanent --add-port=5601/tcp
+```
+
+Reload: `sudo firewall-cmd --reload`
+
+Now refresh the dashboard:
+
+![active-dashboard](img/active-dashboard.png)
+
+## FIM
+
+<!-- Start here -->

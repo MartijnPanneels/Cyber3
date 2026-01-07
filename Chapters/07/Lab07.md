@@ -118,7 +118,7 @@ For the winclient: `& 'C:\Program Files (x86)\ossec-agent\manage_agents.exe'` ->
 
 Add firewallrules to the siem:
 
-```
+```bash
 sudo firewall-cmd --permanent --add-port=1514/tcp
 sudo firewall-cmd --permanent --add-port=1514/udp
 sudo firewall-cmd --permanent --add-port=1515/tcp
@@ -140,7 +140,7 @@ To add the Homedirectory to the configuration: `sudo vi /var/ossec/etc/ossec.con
 
 Result:
 
-```txt
+```xml
 <!-- File integrity monitoring -->
   <syscheck>
     <disabled>no</disabled>
@@ -158,6 +158,176 @@ See alerts in cli: `sudo tail -f /var/ossec/logs/alerts/alerts.log`
 
 Go tho the dashboard -> FIM -> Companyrouter.
 
-On the companyrouter I added a file "success.txt" and removed the file. In the dashboard under the tab events I can see the following:
+Demo: On the companyrouter I added a file "success.txt" and removed the file. In the dashboard under the tab events I can see the following:
 
 ![event-succes](img/event-succes.png)
+
+## Regulatory compliance
+
+Regulatory compliance is when an organization can prove it follows the laws and regulations. There are lot's of frameworks: GDPR, Cyber Resilience Act, NIS2,...
+
+In the [doucmentation](https://documentation.wazuh.com/current/compliance/index.html) I found some information about:
+
+-   Payment Card Industry Data Security Standard (PCI DSS):
+    -   The Wazuh dashboard displays information in real-time, allowing filtering by different types of alert fields, including compliance controls. We have also developed a couple of PCI DSS dashboards for convenient viewing of relevant alerts.
+    -   [Guide](https://wazuh.com/resources/WAZUH-PCI-DSS-V4.0-guide.pdf)
+-   European Union's General Data Protection Regulation (GDPR):
+    -   Wazuh assists with GDPR compliance by performing log collection, file integrity monitoring, configuration assessment, intrusion detection, real-time alerting, and incident response.
+    -   [White paper](https://wazuh.com/resources/Wazuh_GDPR_White_Paper.pdf)
+
+## Threat Hunting
+
+### For Almalinux
+
+For command logging "audit" is used. It is already configured in "/var/ossec/etc/ossec.conf":
+
+```xml
+  <localfile>
+    <log_format>audit</log_format>
+    <location>/var/log/audit/audit.log</location>
+  </localfile>
+```
+
+To test it out I used 2 commands: `sudo whoami` and `curl https://www.example.com -o test.html`
+
+In the Wazuh dashboard go to "Threat hunting" -> "Events"
+
+Here we can see the commands that are being executed on the company router.
+
+![audit-commands](img/audit-commands.png)
+
+### For Windows
+
+Enable PowerShell logging:
+
+-   Open `gpedit.msc`
+-   Go to: Computer Configuration → Administrative Templates → Windows Components → Windows PowerShell
+-   Enable **Module Logging** (add the module `Microsoft.PowerShell.*`)
+-   Enable **Script Block Logging**
+
+You will now see PowerShell command events in Wazuh when you run commands.
+
+## Sysmon
+
+Create a new directory for sysmon (every command will be executed in this folder)
+
+`New-Item -ItemType Directory -Path "C:\Sysmon" -Force`
+
+After downloading Sysmon create a configuration that monitor mimikatz. Paste it in sysconf.xml:
+
+```xml
+<Sysmon schemaversion="4.10">
+   <HashAlgorithms>md5</HashAlgorithms>
+   <EventFiltering>
+      <!--SYSMON EVENT ID 1 : PROCESS CREATION-->
+      <ProcessCreate onmatch="include">
+         <Image condition="contains">mimikatz.exe</Image>
+      </ProcessCreate>
+      <!--SYSMON EVENT ID 2 : FILE CREATION TIME RETROACTIVELY CHANGED IN THE FILESYSTEM-->
+      <FileCreateTime onmatch="include" />
+      <!--SYSMON EVENT ID 3 : NETWORK CONNECTION INITIATED-->
+      <NetworkConnect onmatch="include" />
+      <!--SYSMON EVENT ID 5 : PROCESS ENDED-->
+      <ProcessTerminate onmatch="include" />
+      <!--SYSMON EVENT ID 6 : DRIVER LOADED INTO KERNEL-->
+      <DriverLoad onmatch="include" />
+      <!--SYSMON EVENT ID 7 : DLL (IMAGE) LOADED BY PROCESS-->
+      <ImageLoad onmatch="include" />
+      <!--SYSMON EVENT ID 8 : REMOTE THREAD CREATED-->
+      <CreateRemoteThread onmatch="include">
+         <SourceImage condition="contains">mimikatz.exe</SourceImage>
+      </CreateRemoteThread>
+      <!--SYSMON EVENT ID 9 : RAW DISK ACCESS-->
+      <RawAccessRead onmatch="include" />
+      <!--SYSMON EVENT ID 10 : INTER-PROCESS ACCESS-->
+      <ProcessAccess onmatch="include">
+         <SourceImage condition="contains">mimikatz.exe</SourceImage>
+      </ProcessAccess>
+      <!--SYSMON EVENT ID 11 : FILE CREATED-->
+      <FileCreate onmatch="include" />
+      <!--SYSMON EVENT ID 12 & 13 & 14 : REGISTRY MODIFICATION-->
+      <RegistryEvent onmatch="include" />
+      <!--SYSMON EVENT ID 15 : ALTERNATE DATA STREAM CREATED-->
+      <FileCreateStreamHash onmatch="include" />
+      <PipeEvent onmatch="include" />
+   </EventFiltering>
+</Sysmon>
+```
+
+Install sysmon `.\Sysmon64.exe -accepteula -i sysconfig.xml`
+
+Add the sysmon event logging to the config of the agent using `notepad 'C:\Program Files (x86)\ossec-agent\ossec.conf'`
+
+I added:
+
+```xml
+  <localfile>
+    <location>Microsoft-Windows-Sysmon/Operational</location>
+    <log_format>eventchannel</log_format>
+  </localfile>
+```
+
+And restarted the service: `Restart-Service WazuhSvc`
+
+**On the SIEM** rules must be added:
+
+`sudo vi /var/ossec/etc/rules/local_rules.xml`
+
+Paste:
+
+```xml
+<group name="windows, sysmon, sysmon_process-anomalies,">
+   <rule id="100000" level="12">
+     <if_group>sysmon_event1</if_group>
+     <field name="win.eventdata.image">mimikatz.exe</field>
+     <description>Sysmon - Suspicious Process - mimikatz.exe</description>
+   </rule>
+   <rule id="100001" level="12">
+     <if_group>sysmon_event8</if_group>
+     <field name="win.eventdata.sourceImage">mimikatz.exe</field>
+     <description>Sysmon - Suspicious Process mimikatz.exe created a remote thread</description>
+   </rule>
+   <rule id="100002" level="12">
+     <if_group>sysmon_event_10</if_group>
+     <field name="win.eventdata.sourceImage">mimikatz.exe</field>
+     <description>Sysmon - Suspicious Process mimikatz.exe accessed $(win.eventdata.targetImage)</description>
+   </rule>
+</group>
+```
+
+After adding rules the manager must be restarted: `sudo systemctl restart wazuh-manager`
+
+#### Mimikatz
+
+To add Mimikatz on the winclient I used the following commands:
+
+```PS
+New-Item -ItemType Directory -Path "C:\mimikatz" -Force
+cd C:\mimikatz
+Invoke-WebRequest -Uri "https://github.com/gentilkiwi/mimikatz/releases/download/2.2.0-20220919/mimikatz_trunk.zip" -OutFile "mimikatz.zip"
+Expand-Archive -Path "mimikatz.zip" -DestinationPath "C:\mimikatz" -Force
+```
+
+To execute it: `cd C:\mimikatz\x64` -> `.\mimikatz.exe`
+
+Once Mimikatz running in needed some commands that generated events:
+
+privilege::debug
+sekurlsa::logonpasswords
+lsadump::sam
+
+(use exit to go back to PS)
+
+#### Verify
+
+After these generated events we can verify them:
+
+1. See it in event-viewer on winclient: `eventvwr.msc` -> "Application and Services" -> "Microsoft" -> ""Windows" -> "Sysmon":
+
+![event-viewer](img/event-viewer.png)
+
+2. See it using the Wazuh dashboard: "Threat Hunting" -> filter on winclient:
+
+![threat-dashboard](img/threat-dashboard.png)
+
+![sysmon-dashboard](img/sysmon-dashboard.png)

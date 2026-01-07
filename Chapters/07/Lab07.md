@@ -93,6 +93,8 @@ This output suggest that the server is installed correctly!
 
 The wazuh dashboard
 
+Again use the official documentation
+
 `sudo systemctl restart wazuh-dashboard`
 
 `sudo journalctl -u wazuh-dashboard -f`

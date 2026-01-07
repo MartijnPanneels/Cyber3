@@ -101,7 +101,7 @@ The wazuh dashboard
 
 For the windows wazuh client I used the winclient (windows 10), followed the official documentation.
 
-For the Almalinux client I used the companyrouter, followed the official documentation.
+For the Almalinux client I used the companyrouter, followed the official documentation. The configuration of the agents is found in "/var/ossec/etc/ossec.conf".
 
 First I added the agents `sudo /var/ossec/bin/manage_agents`.
 
@@ -134,4 +134,30 @@ Now refresh the dashboard:
 
 ## FIM
 
-<!-- Start here -->
+[FIM-documentation](https://wazuh-documentation-49-master.readthedocs.io/en/latest/user-manual/capabilities/file-integrity/how-to-configure-fim.html)
+
+To add the Homedirectory to the configuration: `sudo vi /var/ossec/etc/ossec.conf` and add " <directories>/home/vagrant</directories>" to the config. I changed the frequency to 20sec.
+
+Result:
+
+```txt
+<!-- File integrity monitoring -->
+  <syscheck>
+    <disabled>no</disabled>
+
+    <!-- Frequency that syscheck is executed default every 12 hours -->
+    <frequency>20</frequency> # changed to 20sec
+
+    <scan_on_start>yes</scan_on_start>
+
+    <!-- Directories to check  (perform all possible verifications) -->
+     <directories check_all="yes" realtime="yes" report_changes="yes">/home/vagrant</directories>
+```
+
+See alerts in cli: `sudo tail -f /var/ossec/logs/alerts/alerts.log`
+
+Go tho the dashboard -> FIM -> Companyrouter.
+
+On the companyrouter I added a file "success.txt" and removed the file. In the dashboard under the tab events I can see the following:
+
+![event-succes](img/event-succes.png)

@@ -258,6 +258,14 @@ After downloading Sysmon create a configuration that monitor mimikatz. Paste it 
 </Sysmon>
 ```
 
+If every command should be a sysmon event replace it with:
+
+```xml
+<ProcessCreate onmatch="include" />
+```
+
+And reload the config: `Sysmon64.exe -c sysconf.xml`
+
 Install sysmon `.\Sysmon64.exe -accepteula -i sysconfig.xml`
 
 Add the sysmon event logging to the config of the agent using `notepad 'C:\Program Files (x86)\ossec-agent\ossec.conf'`

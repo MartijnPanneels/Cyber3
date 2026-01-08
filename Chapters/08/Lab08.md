@@ -33,7 +33,7 @@
 
 `sudo ettercap -Tq -i eth1 -M arp:remote /192.168.62.42// /192.168.62.253//`
 
-<!-- Format is: /IP/PORT/
+<!-- Format is: MAC/IP/IPv6/PORT
 / before IP starts the target specification
 // after IP means "all ports" (empty port specification) -->
 
@@ -96,6 +96,8 @@ EOF
 
 ### Set up IPsec companyrouter -> homerouter
 
+To generate a random key: `openssl rand -hex 16`
+
 **Script companyrouter**
 
 ```bash
@@ -105,7 +107,7 @@ EOF
 
 # Security Association variables (DIFFERENT SPI for reverse direction)
 SPI8=0x008
-ENCKEY8=0xE3F1A2B4C5D6E7F8091A2B3C4D5E6F708192A3B4C5D6E7F8
+ENCKEY8=0xE3F1A2B4C5D6E7F8091A2B3C4D5E6F70
 
 # Define the SA (Security Association) for encryption
 ip xfrm state add src 192.168.62.253 dst 192.168.62.42 proto esp spi ${SPI8} mode tunnel enc aes ${ENCKEY8}
@@ -124,7 +126,7 @@ ip xfrm policy list
 
 # Security Association variables (MUST MATCH companyrouter)
 SPI8=0x008
-ENCKEY8=0xE3F1A2B4C5D6E7F8091A2B3C4D5E6F708192A3B4C5D6E7F8
+ENCKEY8=0xE3F1A2B4C5D6E7F8091A2B3C4D5E6F70
 
 # Define the SA (Security Association) for decryption
 ip xfrm state add src 192.168.62.253 dst 192.168.62.42 proto esp spi ${SPI8} mode tunnel enc aes ${ENCKEY8}
@@ -146,6 +148,10 @@ Run `sudo ip xfrm state` on the routers
 
 Open your capture in Wireshark.
 
+The ESP packets are not yet decrypted:
+
+![before-decryption](img/before-decryption.png)µ
+
 Go to Edit → Preferences → Protocols → ESP.
 
 Click “Edit” next to “ESP SAs (Security Associations)”.
@@ -155,9 +161,8 @@ Add a new entry with:
 -   SPI 0x00000007 and 0x00000008
 -   IP addresses 192.168.62.253/192.168.62.42
 -   Encryption algorithm cbc(aes)
--   Encryption key 0xfedcba9876543210fedcba9876543210/0xE3F1A2B4C5D6E7F8091A2B3C4D5E6F708192A3B4C5D6E7F8
+-   Encryption key 0xFEDCBA9876543210FEDCBA9876543210/0xE3F1A2B4C5D6E7F8091A2B3C4D5E6F70
 
 Click OK and apply.
 
-![ESP-packets_decrypted](img/ESP-packets_decrypted.png)
-
+![after-decryption](img/after-decryption.png)

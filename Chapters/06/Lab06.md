@@ -245,7 +245,78 @@ Listen 443 https
 
 Restart Appache: `sudo systemctl restart httpd`
 
-Verify it works: `openssl s_client -connect www.cybersec.internal:443 -tls1_3`
+Verify it works: `echo -e "GET / HTTP/1.1\r\nHost: www.cybersec.internal\r\nConnection: close\r\n\r\n" | openssl s_client -connect www.cybersec.internal:443 -tls1_3 -quiet`
+
+output:
+
+```html
+nect www.cybersec.internal:443 -tls1_3 -quiet Connecting to 127.0.2.1 depth=0
+C=BE, ST=Gent, L=Gent, O=CyberSec, CN=www.cybersec.internal verify
+error:num=20:unable to get local issuer certificate verify return:1 depth=0
+C=BE, ST=Gent, L=Gent, O=CyberSec, CN=www.cybersec.internal verify
+error:num=21:unable to verify the first certificate verify return:1 depth=0
+C=BE, ST=Gent, L=Gent, O=CyberSec, CN=www.cybersec.internal verify return:1
+HTTP/1.1 200 OK Date: Thu, 08 Jan 2026 12:09:19 GMT Server: Apache/2.4.62
+(AlmaLinux) OpenSSL/3.2.2 Last-Modified: Fri, 26 Sep 2025 12:59:20 GMT ETag:
+"58f-63fb3daa5a3e7" Accept-Ranges: bytes Content-Length: 1423 Connection: close
+Content-Type: text/html; charset=UTF-8
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Welcome to Example Test Environment</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                text-align: center;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                background-color: #f4f4f4;
+            }
+            .container {
+                width: 80%;
+                max-width: 600px;
+                background-color: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            p {
+                font-size: 1.2em;
+            }
+            a {
+                color: #007bff;
+                text-decoration: none;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Welcome to the cybersec webserver!</h1>
+            <p>
+                This is the webpage of the "cybersec" test environment. We are
+                glad to have you here.
+            </p>
+            <p>
+                If you want to learn more about our services, visit this link:
+                <a href="http://www.cybersec.internal/services"
+                    >http://www.cybersec.internal/services</a
+                >
+            </p>
+        </div>
+    </body>
+</html>
+```
 
 ### Wireshark
 
@@ -255,23 +326,29 @@ Using the SSLKEYLOGFILE:
 
 ```zsh
 ┌──(vagrant㉿red)-[~]
-└─$ pkill firefox
+└─$ pkill chromium
+
+┌──(vagrant㉿red)-[~]
+└─$ rm -f $HOME/sslkeys.log
 
 ┌──(vagrant㉿red)-[~]
 └─$ export SSLKEYLOGFILE=$HOME/sslkeys.log
 
 ┌──(vagrant㉿red)-[~]
-└─$ firefox https://www.cybersec.internal/ &
-[1] 80810
+└─$ wireshark &
+
+# start a capture at eth1 (fake internet)
 
 ┌──(vagrant㉿red)-[~]
-└─$ cat $HOME/sslkeys.log
+└─$ chromium --incognito https://www.cybersec.internal/ &
 ```
 
-This doesn't work if I try it using firefox. I tried doing it using Chromium andf it works.
-
-I need to import the sslkeys.log in wireshark. Edit → Preferences → Protocols → TLS (or SSL) → (Pre)-Master-Secret log filename → "/home/vagrant/sslkeys.log" → OK.
+To decrypt TLS1.3 I need to import the sslkeys.log in wireshark. Edit → Preferences → Protocols → TLS (or SSL) → (Pre)-Master-Secret log filename → "/home/vagrant/sslkeys.log" → OK.
 
 You can now see HTTP packets!
-![Packets3](img/Packets3.png)
-![HTTP-stream3](img/HTTP-stream3.png)
+![HTTP-Packets](img/HTTP-packets.png)
+![HTTP-stream](img/HTTP-stream.png)
+
+## On host
+
+I also copied the ca.crt from the web vm to my host-laptop. I saved in under "cybersec.crt" and imported in my browser. _Make sure that it hase the file-extension .crt_

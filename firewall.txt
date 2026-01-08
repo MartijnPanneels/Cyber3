@@ -19,54 +19,45 @@ table inet filter {
     }
 
  chain forward {
-        type filter hook forward priority 0; policy drop;
+    type filter hook forward priority 0; policy drop;
 
-        # Always allow established/related connections first
-        ct state established,related accept
+    # Allow return traffic
+    ct state established,related accept
 
-        ip daddr 172.30.0.6 tcp dport { 80, 443 } accept
 
-        # DNS forwarding
-        ip saddr 172.30.128.7 ip daddr 192.168.62.254 udp dport 53 accept
-        ip saddr 172.30.128.7 ip daddr 192.168.62.254 tcp dport 53 accept
-        ip saddr 192.168.62.254 ip daddr 172.30.128.7 udp sport 53 accept
-        ip saddr 192.168.62.254 ip daddr 172.30.128.7 tcp sport 53 accept
+    # Internal ↔ DMZ
+    ip saddr 172.30.0.0/17 ip daddr 172.30.128.0/28 accept
+    ip saddr 172.30.128.0/28 ip daddr 172.30.0.0/17 accept
 
-        # Allow ALL networks → Wazuh dashboard (HTTP/HTTPS)
-        ip daddr 172.30.0.6 tcp dport {80,443} accept
+    # Internal ↔ Fake-internet
+    ip saddr 192.168.62.43 ip daddr 172.30.0.0/17 drop
+    ip saddr 172.30.0.0/17 ip daddr 192.168.62.0/24 accept
+    ip saddr 192.168.62.0/24 ip daddr 172.30.0.0/17 accept
 
-        # Allow ALL networks → Wazuh dashboard (Wazuh agent and dashboard ports)
-        ip daddr 172.30.0.6 udp dport 1514 accept
-        ip daddr 172.30.0.6 tcp dport {1514,1515,55000,5601,9200} accept
+    # DMZ ↔ Fake-internet
+    ip saddr 172.30.128.0/28 ip daddr 192.168.62.0/24 accept
+    ip saddr 192.168.62.0/24 ip daddr 172.30.128.0/28 accept
 
-        # Red
-        ip saddr 192.168.62.43 ip daddr 172.30.128.0/28 accept
+    # Internal ↔ Home network
+    ip saddr 172.30.0.0/17 ip daddr 172.10.10.0/24 accept
+    ip saddr 172.10.10.0/24 ip daddr 172.30.0.0/17 accept
 
-        ip saddr 172.30.0.0/17 ip daddr 172.10.10.0/24 accept
-        ip saddr 172.10.10.0/24 ip daddr 172.30.0.0/17 accept
+    # DMZ ↔ Home network
+    ip saddr 172.30.128.0/28 ip daddr 172.10.10.0/24 accept
+    ip saddr 172.10.10.0/24 ip daddr 172.30.128.0/28 accept
 
-        # Internal network ↔ DMZ
-        ip saddr 172.30.0.0/17 ip daddr 172.30.128.0/28 accept
-        ip saddr 172.30.128.0/28 ip daddr 172.30.0.0/17 accept
+    # Public access to DMZ web server
+    ip daddr 172.30.128.10 tcp dport {80,443} accept
 
-        ip saddr 172.30.0.0/17 ip daddr 192.168.62.0/24 accept
-        ip saddr 192.168.62.0/24 ip daddr 172.30.0.0/17 accept
+    # Public access to DMZ DNS server
+    ip daddr 172.30.128.7 udp dport 53 accept
+    ip daddr 172.30.128.7 tcp dport 53 accept
 
-        # DMZ web server → internal DB
-        ip saddr 172.30.128.10 ip daddr 172.30.0.15 tcp dport 3306 accept
-
-        # DMZ ↔ home network (remote_employee)
-        ip saddr 172.30.128.0/28 ip daddr 172.10.10.0/24 accept
-        ip saddr 172.10.10.0/24 ip daddr 172.30.128.0/28 accept
-
-        # Allow ALL networks → DMZ web server
-        ip daddr 172.30.128.10 tcp dport {80,443} accept
-        # Allow ALL networks → Wazuh dashboard
-        ip daddr 172.30.128.7 tcp dport 53 accept
-        ip daddr 172.30.128.7 udp dport 53 accept
-        ip saddr 172.30.128.7 tcp dport 53 accept
-        ip saddr 172.30.128.7 udp dport 53 accept
-    }
+    # Wazuh SIEM (all networks can reach)
+    ip daddr 172.30.0.6 tcp dport {80,443} accept
+    ip daddr 172.30.0.6 udp dport 1514 accept
+    ip daddr 172.30.0.6 tcp dport {1514,1515,55000,5601,9200} accept
+}
     chain output {
         type filter hook output priority 0; policy accept;  # Allow all outgoing
     }
@@ -84,3 +75,4 @@ table ip nat {
 - sudo vi /etc/sysconfig/nftables.conf
 - sudo nft -f /etc/sysconfig/nftables.conf
 - sudo nft list ruleset
+

@@ -93,6 +93,8 @@ This output suggest that the server is installed correctly!
 
 The wazuh dashboard
 
+Add a route to the host laptop so it can visit the dashboard: `route add 172.30.0.0 mask 255.255.128.0 192.168.62.253 -p` (in a administrator PS)
+
 Again use the official documentation
 
 `sudo systemctl restart wazuh-dashboard`
@@ -316,7 +318,6 @@ Once Mimikatz running in needed some commands that generated events:
 
 privilege::debug
 sekurlsa::logonpasswords
-lsadump::sam
 
 (use exit to go back to PS)
 
